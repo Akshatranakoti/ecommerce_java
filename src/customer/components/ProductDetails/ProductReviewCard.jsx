@@ -15,11 +15,11 @@ function ProductReviewCard() {
             <Grid item xs={9}>
                 <div className='space-y-2'>
                     <div>
-                        <p>Ram</p>
-                        <p>April 5,2024</p>
+                        <p className='font-semibold text-lg'>Ram</p>
+                        <p className='opacity-70 '>April 5,2024</p>
                     </div>
                 </div>
-                <Rating value={4.5} name='half-rating'/>
+                <Rating value={4.5} name='half-rating 'readOnly precision={0.5}/>
                 <p>
                 nice product,Really liked it!
                 </p>
