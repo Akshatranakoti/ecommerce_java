@@ -1,13 +1,14 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { filters } from './Filterdata'
 import { singleFilter } from './Filterdata'
-import { FormControl ,FormLabel,RadioGroup,FormControlLabel,Radio } from '@mui/material'
+import { FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material'
 import FilterListIcon from '@mui/icons-material/FilterList';
 import ReactDOM from "react-dom";
-
+import { findProducts } from '../../../State/Product/Action'
+import Pagination from '@mui/material/Pagination';
 
 import {
   Dialog,
@@ -25,10 +26,15 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon, Squares2X2Icon } from '@heroicons/react/20/solid'
 import { mens_kurta } from '../../../Data/mens_kurta'
 import ProductCard from './ProductCard'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Category } from '@mui/icons-material'
+import { useDispatch, useSelector } from 'react-redux'
+
+import {store} from '../../../State/store.js'
+
 
 const sortOptions = [
-  
+
   { name: 'Price: Low to High', href: '#', current: false },
   { name: 'Price: High to Low', href: '#', current: false },
 ]
@@ -38,48 +44,92 @@ function classNames(...classes) {
 }
 
 export default function Product() {
-  
+
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false)
-  const navigate=useNavigate();
-  const location=useLocation();
-  const handleFilter=(value,sectionId)=>{
+  const navigate = useNavigate();
+  const location = useLocation();
+  const param = useParams();
+  const dispatch=useDispatch();
+  const {products}=useSelector(store=>store);
+  console.log("product.jsx procuct",products)
+
+  const decodedQueryString = decodeURIComponent(location.search);
+  const searchParams = new URLSearchParams(decodedQueryString);
+  const colorValue = searchParams.get("color")
+  const sizeValue = searchParams.get("size")
+  const priceValue = searchParams.get("price")
+  const discount = searchParams.get("discount")
+  const sortValue = searchParams.get("sort")
+  const pageNumber = searchParams.get("page") || 1;
+  const stock = searchParams.get("stock")
+
+  const handlePaginationChange=(event,value)=>{
+   const searchParams=new URLSearchParams(location.search)
+   searchParams.set("page",value);
+   const query=searchParams.toString()
+   navigate({search:`?${query}`})
+
+  }
+
+  const handleFilter = (value, sectionId) => {
     console.log("hi")
-    const searchParams=new URLSearchParams(location.search)
-    
+    const searchParams = new URLSearchParams(location.search)
 
-    let filterValue=searchParams.getAll(sectionId)
+
+    let filterValue = searchParams.getAll(sectionId)
     console.log("hi")
 
-    if(filterValue.length>0 && filterValue[0].split(",").includes(value)){
-      
+    if (filterValue.length > 0 && filterValue[0].split(",").includes(value)) {
 
-      filterValue=filterValue[0].split(",").filter((item)=>item!==value);
-      if(filterValue.length===0){
+
+      filterValue = filterValue[0].split(",").filter((item) => item !==value);
+      if (filterValue.length === 0) {
         searchParams.delete(sectionId)
       }
     }
-      else{
-        filterValue.push(value)
-      }
-    
-    if(filterValue.length>0){
-     
-
-      searchParams.set(sectionId,filterValue.join(","));
-      
+    else {
+      filterValue.push(value)
     }
-    const query=searchParams.toString();
 
-      navigate({search:`?${query}`})
+    if (filterValue.length > 0) {
+
+
+      searchParams.set(sectionId, filterValue.join(","));
+
+    }
+    const query = searchParams.toString();
+
+    navigate({ search: `?${query}` })
   }
-const handleRadioFilterChange=(e,sectionId)=>{
-  const searchParams=new URLSearchParams(location.search)
-  searchParams.set(sectionId,e.target.value)
-  const query=searchParams.toString();
+  const handleRadioFilterChange = (e, sectionId) => {
+    const searchParams = new URLSearchParams(location.search)
+    searchParams.set(sectionId, e.target.value)
+    const query = searchParams.toString();
 
-      navigate({search:`?${query}`})
-  
-}
+    navigate({ search: `?${query}` })
+
+  }
+
+  useEffect(() => {
+    const [minPrice, maxPrice]=priceValue===null?[0,10000]:priceValue.split("-").map(Number);
+    const data={
+      category:param.lavelThree||[],
+      colors:colorValue|| [],
+      sizes:sizeValue || [],
+      minPrice,
+      maxPrice,
+      minDiscount:discount ||0,
+      sort:sortValue || "price_low",
+      pageNumber:pageNumber-1,
+      pageSize:1,
+      stock:stock,
+  }
+
+dispatch(findProducts(data))
+
+console.log("data:",data);
+
+  }, [param.lavelThree, colorValue,sizeValue, priceValue, discount, sortValue,pageNumber, stock ])
   return (
     <div className="bg-white">
       <div>
@@ -211,95 +261,101 @@ const handleRadioFilterChange=(e,sectionId)=>{
             <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-5">
               <div>
                 <div className='py-10 flex justify-between items-center'>
-                <h1 className='text-lg font-bold opacity-50'>Filters</h1>
-                <FilterListIcon/>
+                  <h1 className='text-lg font-bold opacity-50'>Filters</h1>
+                  <FilterListIcon />
                 </div>
-            
-              <form className="hidden lg:block">
-               
-                 
 
-               {filters.map((section) => (
-                 <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
-                   <h3 className="-my-3 flow-root">
-                     <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                       <span className="font-medium text-gray-900">{section.name}</span>
-                       <span className="ml-6 flex items-center">
-                         <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
-                         <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
-                       </span>
-                     </DisclosureButton>
-                   </h3>
-                   <DisclosurePanel className="pt-6">
-                     <div className="space-y-4">
-                       {section.options.map((option, optionIdx) => (
-                         <div key={option.value} className="flex items-center">
-                           <input
-                           onChange={()=>handleFilter(option.value,section.id)}
-                             defaultValue={option.value}
-                             defaultChecked={option.checked}
-                             id={`filter-${section.id}-${optionIdx}`}
-                             name={`${section.id}[]`}
-                             type="checkbox"
-                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                           />
-                           <label htmlFor={`filter-${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
-                             {option.label}
-                           </label>
-                         </div>
-                       ))}
-                     </div>
-                   </DisclosurePanel>
-                 </Disclosure>
-               ))}
-                {singleFilter.map((section) => (
-                 <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
-                  
-                   <h3 className="-my-3 flow-root">
-                     <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
-                       {/* <span className="font-medium "></span> */}
-                       <FormLabel  sx={{color:"black"}} className='text-gray-800' id="demo-radio-buttons-group-label">{section.name}</FormLabel>
+                <form className="hidden lg:block">
 
-                       <span className="ml-6 flex items-center">
-                         <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
-                         <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
-                       </span>
-                     </DisclosureButton>
-                   </h3>
-                   <DisclosurePanel className="pt-6">
-                     <div className="space-y-4">
-                     <FormControl>
-                     <RadioGroup
-                         aria-labelledby="demo-radio-buttons-group-label"
-                         defaultValue="female"
-                         name="radio-buttons-group"
-                       >
-                       {section.options.map((option, optionIdx) => (
-                       
-                      <>
-                       <FormControlLabel onChange={(e)=>handleRadioFilterChange(e,section.id)} value={option.value} control={<Radio />} label={option.label} />
-                       
-                       </>
-                        
-                     
-                       ))}
-                       </RadioGroup>
-                       </FormControl>
-                     </div>
-                   </DisclosurePanel>
-                 
-                 </Disclosure>
-               ))}
-             </form>
+
+
+                  {filters.map((section) => (
+                    <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
+                      <h3 className="-my-3 flow-root">
+                        <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          <span className="font-medium text-gray-900">{section.name}</span>
+                          <span className="ml-6 flex items-center">
+                            <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
+                            <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
+                          </span>
+                        </DisclosureButton>
+                      </h3>
+                      <DisclosurePanel className="pt-6">
+                        <div className="space-y-4">
+                          {section.options.map((option, optionIdx) => (
+                            <div key={option.value} className="flex items-center">
+                              <input
+                                onChange={() => handleFilter(option.value, section.id)}
+                                defaultValue={option.value}
+                                defaultChecked={option.checked}
+                                id={`filter-${section.id}-${optionIdx}`}
+                                name={`${section.id}[]`}
+                                type="checkbox"
+                                className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                              />
+                              <label htmlFor={`filter-${section.id}-${optionIdx}`} className="ml-3 text-sm text-gray-600">
+                                {option.label}
+                              </label>
+                            </div>
+                          ))}
+                        </div>
+                      </DisclosurePanel>
+                    </Disclosure>
+                  ))}
+                  {singleFilter.map((section) => (
+                    <Disclosure key={section.id} as="div" className="border-b border-gray-200 py-6">
+
+                      <h3 className="-my-3 flow-root">
+                        <DisclosureButton className="group flex w-full items-center justify-between bg-white py-3 text-sm text-gray-400 hover:text-gray-500">
+                          {/* <span className="font-medium "></span> */}
+                          <FormLabel sx={{ color: "black" }} className='text-gray-800' id="demo-radio-buttons-group-label">{section.name}</FormLabel>
+
+                          <span className="ml-6 flex items-center">
+                            <PlusIcon aria-hidden="true" className="h-5 w-5 group-data-[open]:hidden" />
+                            <MinusIcon aria-hidden="true" className="h-5 w-5 [.group:not([data-open])_&]:hidden" />
+                          </span>
+                        </DisclosureButton>
+                      </h3>
+                      <DisclosurePanel className="pt-6">
+                        <div className="space-y-4">
+                          <FormControl>
+                            <RadioGroup
+                              aria-labelledby="demo-radio-buttons-group-label"
+                              defaultValue="female"
+                              name="radio-buttons-group"
+                            >
+                              {section.options.map((option, optionIdx) => (
+
+                                <>
+                                  <FormControlLabel onChange={(e) => handleRadioFilterChange(e, section.id)} value={option.value} control={<Radio />} label={option.label} />
+
+                                </>
+
+
+                              ))}
+                            </RadioGroup>
+                          </FormControl>
+                        </div>
+                      </DisclosurePanel>
+
+                    </Disclosure>
+                  ))}
+                </form>
               </div>
-             
+
 
               {/* Product grid */}
               <div className="lg:col-span-4 w-full">
                 <div className='flex flex-wrap justify-center bg-white py-5 '>
-                    {mens_kurta.map((item)=><ProductCard  product={item}/>)}
+                  {products.products&& products.products?.content?.map((item) => <ProductCard product={item} />)}
                 </div>
-                </div>
+              </div>
+            </div>
+          </section>
+          <section className='w-full px=[3.6rem'>
+            <div className='px-4 py-5 flex justify-center  '>
+            <Pagination count={products.products?.totalPages} color="secondary" onChange={handlePaginationChange}/>
+
             </div>
           </section>
         </main>

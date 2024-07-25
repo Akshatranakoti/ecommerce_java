@@ -2,13 +2,14 @@ import React from 'react'
 import { Routes ,Route} from 'react-router-dom'
 import HomePage from '../customer/Pages/HomePage'
 import Navigation from '../customer/components/Navigation/Navigation.jsx'
-import Cart from '../customer/components/Cart/Cart.jsx'
 import Footer from '../customer/components/Footer/Footer.jsx'
+import Cart from '../customer/components/Cart/Cart.jsx'
 import Product from '../customer/components/Product/Product.jsx'
 import ProductDetails from '../customer/components/ProductDetails/ProductDetails.jsx'
 import Checkout from '../customer/components/Checkout/Checkout.jsx'
 import Order from '../customer/Order/Order.jsx'
 import OrderDetails from '../customer/Order/OrderDetails.jsx'
+import PaymentSuccess from '../customer/components/Payment/PaymentSuccess.jsx'
 function CustomerRouters() {
   return (
     <div>
@@ -26,6 +27,8 @@ function CustomerRouters() {
          <Route path='/checkout' element={<Checkout/>}></Route>
          <Route path='/account/order' element={<Order/>}></Route>
          <Route path='/account/order/:orderId' element={<OrderDetails/>}></Route>
+
+         <Route path='/payments/:orderId' element={<PaymentSuccess/>}></Route>
          
 
 
