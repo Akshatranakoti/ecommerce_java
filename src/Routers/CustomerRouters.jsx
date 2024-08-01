@@ -3,13 +3,13 @@ import { Routes ,Route} from 'react-router-dom'
 import HomePage from '../customer/Pages/HomePage'
 import Navigation from '../customer/components/Navigation/Navigation.jsx'
 import Footer from '../customer/components/Footer/Footer.jsx'
-import Cart from '../customer/components/Cart/Cart.jsx'
 import Product from '../customer/components/Product/Product.jsx'
 import ProductDetails from '../customer/components/ProductDetails/ProductDetails.jsx'
 import Checkout from '../customer/components/Checkout/Checkout.jsx'
 import Order from '../customer/Order/Order.jsx'
 import OrderDetails from '../customer/Order/OrderDetails.jsx'
 import PaymentSuccess from '../customer/components/Payment/PaymentSuccess.jsx'
+import Cart from '../customer/components/Cart/cart.jsx'
 function CustomerRouters() {
   return (
     <div>
