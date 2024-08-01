@@ -25,6 +25,9 @@ function classNames(...classes) {
 }
 
 export default function Navigation() {
+  const {cart}=useSelector(store=>store)
+  
+  console.log("cartItemcount:",cart);
   const [open, setOpen] = useState(false);
   const navigate=useNavigate();
   
@@ -271,7 +274,7 @@ export default function Navigation() {
               <div className="ml-4 flex lg:ml-0">
                
                   <span className="sr-only">Your Company</span>
-                  <img
+                  <img onClick={()=>{navigate("/")}}
                     src="https://res.cloudinary.com/ddkso1wxi/image/upload/v1675919455/Logo/Copy_of_Zosh_Academy_nblljp.png"
                     alt="Shopwithzosh"
                     className="h-8 w-8 mr-2"
@@ -483,7 +486,7 @@ export default function Navigation() {
 
                 {/* Cart */}
                 <div className="ml-4 flow-root lg:ml-6">
-                  <Button
+                  <Button onClick={()=>{navigate("/cart")}}
                  
                     className="group -m-2 flex items-center p-2"
                   >
@@ -492,7 +495,7 @@ export default function Navigation() {
                       aria-hidden="true"
                     />
                     <span className="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800">
-                      2
+                    {cart.cart?.cartItems.length}
                     </span>
                     <span className="sr-only">items in cart, view bag</span>
                   </Button>

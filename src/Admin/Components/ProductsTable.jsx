@@ -14,7 +14,7 @@ function ProductsTable() {
     useEffect(() => {
 
         const data = {
-            category: "mens_kurta",
+            category: "lengha_choli",
             colors: [],
             sizes: [],
             minPrice: 0,

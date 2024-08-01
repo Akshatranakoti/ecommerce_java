@@ -94,6 +94,7 @@ function OrdersTable() {
                       : item.orderStatus === "SHIPPED" ? "bg-[blue]"
                         : item.orderStatus == "PENDING" ? "bg-[yellow]"
                           : item.orderStatus == "PLACED" ? "bg-[gray]"
+                          : item.orderStatus == "DELIVERED" ? "bg-[#9acb61]"
                             : "bg-[red]"}`}>{item.orderStatus}</span></TableCell>
 
                   <TableCell align="left">
