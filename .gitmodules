@@ -1,0 +1,3 @@
+[submodule "ecommerce_java_backend"]
+	path = ecommerce_java_backend
+	url = https://github.com/Akshatranakoti/ecommerce_java_backend.git
